@@ -1,9 +1,9 @@
-import cv2                #importing opencv library
-import mediapipe as mp    #importing mediapipe library
-import pyautogui
+import cv2                #OpenCV (for video capturing)
+import mediapipe as mp    #For getting hand points and coordinates
+import pyautogui          #For performing double click
 import random
-import util
-from pynput.mouse import Button, Controller
+import util               #Other file with some functions
+from pynput.mouse import Button, Controller # For right click and left click 
 mouse = Controller()
 
 
@@ -24,19 +24,19 @@ hands = mpHands.Hands(            #This creates an instance of the hand detectio
 
 def find_finger_tip(processed):
     if processed.multi_hand_landmarks:
-        hand_landmarks = processed.multi_hand_landmarks[0]  # Assuming only one hand is detected
+        hand_landmarks = processed.multi_hand_landmarks[0]  # Assuming only one hand is detected as we need only one hand.
         index_finger_tip = hand_landmarks.landmark[mpHands.HandLandmark.INDEX_FINGER_TIP]
         return index_finger_tip
     return None, None
 
-
+#CURSOR MOVING
 def move_mouse(index_finger_tip):
     if index_finger_tip is not None:
         x = int(index_finger_tip.x * screen_width)
         y = int(index_finger_tip.y / 2 * screen_height)
         pyautogui.moveTo(x, y)
 
-
+#LEFT CLICK
 def is_left_click(landmark_list, thumb_index_dist):
     return (
             util.get_angle(landmark_list[5], landmark_list[6], landmark_list[8]) < 50 and
@@ -44,7 +44,7 @@ def is_left_click(landmark_list, thumb_index_dist):
             thumb_index_dist > 50
     )
 
-
+#RIGHT CLICK
 def is_right_click(landmark_list, thumb_index_dist):
     return (
             util.get_angle(landmark_list[9], landmark_list[10], landmark_list[12]) < 50 and
@@ -52,7 +52,7 @@ def is_right_click(landmark_list, thumb_index_dist):
             thumb_index_dist > 50
     )
 
-
+#DOUBLE CLICK
 def is_double_click(landmark_list, thumb_index_dist):
     return (
             util.get_angle(landmark_list[5], landmark_list[6], landmark_list[8]) < 50 and
@@ -60,7 +60,7 @@ def is_double_click(landmark_list, thumb_index_dist):
             thumb_index_dist > 50
     )
 
-
+#SCREENSHOT
 def is_screenshot(landmark_list, thumb_index_dist):
     return (
             util.get_angle(landmark_list[5], landmark_list[6], landmark_list[8]) < 50 and
@@ -102,7 +102,7 @@ def main():   #making function
     try:   #handel the error if any
         while cap.isOpened():                      #check if the capture running successfully
             ret, frame = cap.read()                #ret(return) is a bool value and we are reading video frame by frame
-            if not ret:                            #if return is false then we will break
+            if not ret:                            
                 break
             frame = cv2.flip(frame, 1)             #this will flip the frame just like we are looking into the mirror.The parameter 1 tells the function to flip the image horizontally (like looking in a mirror).
             frameRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #The line of code frameRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) is a part of the OpenCV library in Python. It converts an image or video frame from the BGR color format (default for OpenCV) to the RGB color format
@@ -132,15 +132,7 @@ def main():   #making function
 if __name__ == '__main__':
     main()
 
-'''why do we use this line
 
-When you run the file directly: The code inside if __name__ == '__main__': runs.
-
-When you import the file into another file: The code inside if __name__ == '__main__': does not run.
-
-Why is this helpful?
-
-It helps make your code reusable. You can use functions from the file in other files without running everything in it automatically.'''
 
 
 
